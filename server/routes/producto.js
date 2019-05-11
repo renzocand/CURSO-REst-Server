@@ -6,22 +6,38 @@ let app = express();
 let Producto = require('../models/producto');
 
 
-app.get('/productos', async (req, res) => {
+app.get('/productos',verificaToken, async (req, res) => {
 
     let Desde = req.query.desde || 0;
     Desde = Number(Desde)
     let limite = req.query.limite || 5;
     limite = Number(limite)
 
-    let productos = await Producto.find()
+    let productos = await Producto.find({disponible:true})
         .populate("usuario", "nombre email")
         .populate("categoria")
         .skip(Desde)
         .limit(limite)
 
+    let contar =  await Producto.count({disponible:true})
+
     res.json({
         ok: true,
-        productos
+        productos,
+        mensaje: `Hay ${contar} productos disponibles`
+    })
+})
+
+app.get('/productos/buscar/:termino', async (req,res)=>{
+    let termino = req.params.termino;
+    let regExpr = new RegExp(termino, 'i');
+    let producto = await Producto.find({ nombre:regExpr })
+        .populate("usuario", "nombre email")
+        .populate("categoria", "descripcion")
+
+    res.json({
+        ok: true,
+        producto
     })
 })
 
@@ -48,7 +64,7 @@ app.post('/productos', verificaToken, async (req, res) => {
     }
 })
 
-app.get('/productos/:id',async (req,res)=>{
+app.get('/productos/:id',verificaToken ,async (req,res)=>{
     let id = req.params.id;
     let producto = await Producto.findById(id)
         .populate('usuario')
@@ -75,7 +91,7 @@ app.put('/productos/:id', async(req,res)=>{
     })
 })
 
-app.delete('/productos/:id', async(req,res)=>{
+app.delete('/productos/:id',verificaToken, async(req,res)=>{
     let id = req.params.id;
     let cambiar = {
         disponible: false
