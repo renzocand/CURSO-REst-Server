@@ -14,7 +14,7 @@ app.get('/productos',verificaToken, async (req, res) => {
     limite = Number(limite)
 
     let productos = await Producto.find({disponible:true})
-        .populate("usuario", "nombre email")
+        .populate("usuario", "nombre email img")
         .populate("categoria")
         .skip(Desde)
         .limit(limite)
@@ -32,7 +32,7 @@ app.get('/productos/buscar/:termino', async (req,res)=>{
     let termino = req.params.termino;
     let regExpr = new RegExp(termino, 'i');
     let producto = await Producto.find({ nombre:regExpr })
-        .populate("usuario", "nombre email")
+        .populate("usuario", "nombre email img")
         .populate("categoria", "descripcion")
 
     res.json({
