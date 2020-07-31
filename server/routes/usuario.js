@@ -9,7 +9,7 @@ const { verificaToken, verificaAdmin_Role } = require('../middlewares/autenticac
 const app = express();
 
 
-app.get('/usuario',verificaToken, (req, res) => {
+app.get('/usuario', (req, res) => {
 
 
     let desde = req.query.desde || 0;
